@@ -1,0 +1,5 @@
+{
+  "CxServer": "http://<Your-Server-Host>:<Port>",
+  "CxUser": "Your-CxSAST-User-Name",
+  "CxPassword": "Your-Password"
+}
