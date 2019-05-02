@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -39,34 +38,38 @@ namespace RestClients.Controllers
             var response = restClient.Execute(request);
 
             var content = response.Content;
+            
+            var json = (JObject)JsonConvert.DeserializeObject(content);
 
-            return content;
+            return json["access_token"].ToString();
         }
         
         public string GetAllProjectDetials()
         {
             const string urlSub = "/cxrestapi/projects";
             
-            var restClient = new RestClient(ServerUrl + urlSub);
-            
-            var request = new RestRequest {Method = Method.GET};
+//            var restClient = new RestClient(ServerUrl + urlSub);
+//            
+//            var request = new RestRequest {Method = Method.GET};
+//
+//            var json = (JObject)JsonConvert.DeserializeObject(GetAccessToken());
+//            
+////            Console.WriteLine(json["access_token"]);
+//            
+//            request.AddHeader("Content-Type", "application/json;v=2.0");
+//            request.AddHeader("cxOrigin", "ASP.Net Core Web Application");
+//            request.AddHeader("Authorization", "Bearer "+json["access_token"]);
+//
+//            var response = restClient.Execute(request);
 
-            var json = (JObject)JsonConvert.DeserializeObject(GetAccessToken());
-            
-//            Console.WriteLine(json["access_token"]);
-            
-            request.AddHeader("Content-Type", "application/json;v=2.0");
-            request.AddHeader("cxOrigin", "ASP.Net Core Web Application");
-            request.AddHeader("Authorization", "Bearer "+json["access_token"]);
+            var myResponse = SendRequests("get_all_project_details", "get", "2.0", urlSub);
 
-            var response = restClient.Execute(request);
-
-            return response.Content;
+            return myResponse.Content;
 
 
         }
 
-        public IRestResponse SendRequests(string keyword, string method, string urlSub=null, string data=null)
+        public IRestResponse SendRequests(string keyword, string method, string version,  string urlSub=null, string data=null)
         {
             var restClient = new RestClient();
             var request = new RestRequest();
@@ -77,6 +80,9 @@ namespace RestClients.Controllers
                 {
                     restClient.BaseUrl = new Uri(ServerUrl + keyword);
                     request.Method = Method.GET;
+                    request.AddHeader("Content-Type", "application/json;v=" + version);
+                    request.AddHeader("cxOrigin", "ASP.Net Core Web Application");
+                    request.AddHeader("Authorization", "Bearer " + GetAccessToken());
                     break;
                 }
                 case "post":
