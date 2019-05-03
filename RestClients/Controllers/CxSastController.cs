@@ -1,91 +1,40 @@
 using System;
-using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 
 namespace RestClients.Controllers
-{
+{    
     public class CxSastController: Controller
     {
-        private const string ServerUrl = "http://<HOST>:<PORT>";
-        private const string CxUser = "<USERNAME>";
-        private const string CxPassword = "<PASSWORD>";
-//        const JObject config = 
+        private static readonly JObject Configuration = JObject.Parse(System.IO.File.ReadAllText(@"etc/CxSast/config.json"));
+        private static readonly JObject Urls = JObject.Parse(System.IO.File.ReadAllText(@"etc/CxSast/urls.json"));
+        //        const JObject config = 
         public IActionResult CxSastHome()
         {
             return View();
         }
 
-        public string GetAccessToken()
-        {
-            
-            const string urlSub = "/cxrestapi/auth/identity/connect/token";
-            
-            var restClient = new RestClient(ServerUrl + urlSub);
-            var request = new RestRequest {Method = Method.POST};
-            request.AddHeader("Content-Type", "application/json;v=1.0");
-            request.AddHeader("cxOrigin", "ASP.Net Core Web Application");
-
-            request.AddParameter("username", CxUser);
-            request.AddParameter("password", CxPassword);
-            request.AddParameter("grant_type", "password");
-            request.AddParameter("scope", "sast_rest_api");
-            request.AddParameter("client_id", "resource_owner_client");
-            request.AddParameter("client_secret", "014DF517-39D1-4453-B7B3-9930C563627C");
-
-            var response = restClient.Execute(request);
-
-            var content = response.Content;
-            
-            var json = (JObject)JsonConvert.DeserializeObject(content);
-
-            return json["access_token"].ToString();
-        }
-        
-        public string GetAllProjectDetials()
-        {
-            const string urlSub = "/cxrestapi/projects";
-            
-//            var restClient = new RestClient(ServerUrl + urlSub);
-//            
-//            var request = new RestRequest {Method = Method.GET};
-//
-//            var json = (JObject)JsonConvert.DeserializeObject(GetAccessToken());
-//            
-////            Console.WriteLine(json["access_token"]);
-//            
-//            request.AddHeader("Content-Type", "application/json;v=2.0");
-//            request.AddHeader("cxOrigin", "ASP.Net Core Web Application");
-//            request.AddHeader("Authorization", "Bearer "+json["access_token"]);
-//
-//            var response = restClient.Execute(request);
-
-            var myResponse = SendRequests("get_all_project_details", "get", "2.0", urlSub);
-
-            return myResponse.Content;
-
-
-        }
-
-        public IRestResponse SendRequests(string keyword, string method, string version,  string urlSub=null, string data=null)
+        private static IRestResponse SendRequests(string keyword,  string urlSub=null, string data=null)
         {
             var restClient = new RestClient();
             var request = new RestRequest();
+            
+            request.AddHeader("Content-Type", "application/json;v=" + Urls[keyword]["version"]);
+            request.AddHeader("cxOrigin", "ASP.Net Core Web Application");
+            request.AddHeader("Authorization", "Bearer " + GetAccessToken());
 
-            switch (method)
+            switch (Urls[keyword]["http_method"].ToString())
             {
-                case "get":
+                case "GET":
                 {
-                    restClient.BaseUrl = new Uri(ServerUrl + keyword);
+                    
+                    restClient.BaseUrl = new Uri(Configuration["CxServer"].ToString() + Urls[keyword]["url_suffix"]);
                     request.Method = Method.GET;
-                    request.AddHeader("Content-Type", "application/json;v=" + version);
-                    request.AddHeader("cxOrigin", "ASP.Net Core Web Application");
-                    request.AddHeader("Authorization", "Bearer " + GetAccessToken());
                     break;
                 }
-                case "post":
+                case "POST":
                 {
                     request.Method = Method.POST;
                     break;
@@ -99,6 +48,76 @@ namespace RestClients.Controllers
             
             return response;
             
+
+        }
+
+        private static string GetAccessToken()
+        {
+            var restClient = new RestClient(Configuration["CxServer"].ToString() + Urls["AccessToken"]["url_suffix"]);
+            var request = new RestRequest {Method = Method.POST};
+//            request.AddHeader("Content-Type", "application/json;v=2.0");
+//            request.AddHeader("cxOrigin", "ASP.Net Core Web Application");
+
+            request.AddParameter("username", Configuration["CxUser"]);
+            request.AddParameter("password", Configuration["CxPassword"]);
+            request.AddParameter("grant_type", "password");
+            request.AddParameter("scope", "sast_rest_api");
+            request.AddParameter("client_id", "resource_owner_client");
+            request.AddParameter("client_secret", "014DF517-39D1-4453-B7B3-9930C563627C");
+
+            var response = restClient.Execute(request);
+            
+            var json = (JObject)JsonConvert.DeserializeObject(response.Content);
+
+            return json["access_token"].ToString();
+        }
+
+//        public JObject Login()
+
+//        {
+
+//            // This method will be deprecated after v8.9.0
+
+//            var restClient = new RestClient(Configuration["CxServer"].ToString() + Urls["login"]["url_suffix"]);
+
+//            var request = new RestRequest {Method = Method.POST};
+
+//
+
+//            request.AddParameter("username", "admin");
+
+//            request.AddParameter("password", "Password01!");
+
+//
+
+//            var response = restClient.Execute(request);
+
+//            Console.WriteLine("================================================");
+
+//            Console.WriteLine(Configuration["CxServer"].ToString() + Urls["login"]["url_suffix"]);
+
+//            Console.WriteLine(response.Headers);
+
+//            Console.WriteLine(response.StatusCode);
+
+//            Console.WriteLine(response.Content);
+
+//            Console.WriteLine("================================================");
+
+//
+
+//            return null;
+
+//        }
+
+
+        public string GetAllProjectDetials()
+        {
+
+            var response = SendRequests("GetAllProjectDetails");
+
+            return response.Content;
+
 
         }
     }
