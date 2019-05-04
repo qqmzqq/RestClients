@@ -1,5 +1,7 @@
 using System;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -16,27 +18,55 @@ namespace RestClients.Controllers
             return View();
         }
 
-        private static IRestResponse SendRequests(string keyword,  string urlSub=null, string data=null)
+        private static IRestResponse SendRequests(string keyword,  JObject urlSub=null, JObject data=null)
         {
-            var restClient = new RestClient();
-            var request = new RestRequest();
+            if (urlSub == null)
+            {
+                Console.WriteLine("=== URL sub is null ===");
+                urlSub = new JObject
+                ( 
+                    new JProperty("pattern", ""),
+                    new JProperty("value", "")
+                );
+            }
+
+            var urlParameters = Urls[keyword];
             
+            var url = Configuration["CxServer"] + 
+                      Regex.Replace
+                      (
+                          urlParameters["urlSuffix"].ToString(), 
+                          urlSub["pattern"].ToString(), 
+                          urlSub["value"].ToString() 
+                      );
+            
+//            Console.WriteLine("=== url: " + url + " ===");
+            
+            var restClient = new RestClient(url);
+            var request = new RestRequest();
+
             request.AddHeader("Content-Type", "application/json;v=" + Urls[keyword]["version"]);
             request.AddHeader("cxOrigin", "ASP.Net Core Web Application");
             request.AddHeader("Authorization", "Bearer " + GetAccessToken());
 
-            switch (Urls[keyword]["http_method"].ToString())
+            switch (Urls[keyword]["method"].ToString())
             {
                 case "GET":
                 {
-                    
-                    restClient.BaseUrl = new Uri(Configuration["CxServer"].ToString() + Urls[keyword]["url_suffix"]);
                     request.Method = Method.GET;
                     break;
                 }
                 case "POST":
                 {
                     request.Method = Method.POST;
+                    if (data != null)
+                    {
+                        foreach (var (key, value) in data)
+                        {
+                            request.AddParameter(key, value);
+                        }
+                    }
+
                     break;
                 }
                 default:
@@ -46,6 +76,10 @@ namespace RestClients.Controllers
 
             var response = restClient.Execute(request);
             
+//            Console.WriteLine("==================================");
+//            Console.WriteLine("* StatusCond: " + response.StatusCode);
+//            Console.WriteLine("* Context: \n" + response.Content);
+//            Console.WriteLine("==================================");
             return response;
             
 
@@ -53,7 +87,7 @@ namespace RestClients.Controllers
 
         private static string GetAccessToken()
         {
-            var restClient = new RestClient(Configuration["CxServer"].ToString() + Urls["AccessToken"]["url_suffix"]);
+            var restClient = new RestClient(Configuration["CxServer"].ToString() + Urls["AccessToken"]["urlSuffix"]);
             var request = new RestRequest {Method = Method.POST};
 //            request.AddHeader("Content-Type", "application/json;v=2.0");
 //            request.AddHeader("cxOrigin", "ASP.Net Core Web Application");
@@ -73,41 +107,43 @@ namespace RestClients.Controllers
         }
 
 //        public JObject Login()
-
+//
 //        {
-
-//            // This method will be deprecated after v8.9.0
-
+//
+//            /*
+//             * This method will be deprecated after v8.9.0
+//             */
+//
 //            var restClient = new RestClient(Configuration["CxServer"].ToString() + Urls["login"]["url_suffix"]);
-
+//
 //            var request = new RestRequest {Method = Method.POST};
-
 //
-
+//
+//
 //            request.AddParameter("username", "admin");
-
+//
 //            request.AddParameter("password", "Password01!");
-
 //
-
+//
+//
 //            var response = restClient.Execute(request);
-
-//            Console.WriteLine("================================================");
-
-//            Console.WriteLine(Configuration["CxServer"].ToString() + Urls["login"]["url_suffix"]);
-
-//            Console.WriteLine(response.Headers);
-
-//            Console.WriteLine(response.StatusCode);
-
-//            Console.WriteLine(response.Content);
-
-//            Console.WriteLine("================================================");
-
 //
-
+//            Console.WriteLine("================================================");
+//
+//            Console.WriteLine(Configuration["CxServer"].ToString() + Urls["login"]["url_suffix"]);
+//
+//            Console.WriteLine(response.Headers);
+//
+//            Console.WriteLine(response.StatusCode);
+//
+//            Console.WriteLine(response.Content);
+//
+//            Console.WriteLine("================================================");
+//
+//
+//
 //            return null;
-
+//
 //        }
 
 
@@ -117,8 +153,32 @@ namespace RestClients.Controllers
             var response = SendRequests("GetAllProjectDetails");
 
             return response.Content;
+        }
 
+        public string CreateProjectWithDefaultConfiguration(string name, string owningTeam, bool isPublic)
+        {
+            var data = new JObject
+                (
+                    new JProperty("name", name),
+                    new JProperty("owningTeam", owningTeam),
+                    new JProperty("isPublic", isPublic)
+                );
+            
+            var response = SendRequests("CreateProjectWithDefaultConfiguration", data:data);
 
+            return response.Content;
+        }
+
+        public string GetProjectDetailsById(string id)
+        {
+            var urlSub = new JObject
+                ( 
+                    new JProperty("pattern", "{id}"),
+                    new JProperty("value", id)
+                );
+            var response = SendRequests("GetProjectDetailsById", urlSub);
+
+            return response.Content;
         }
     }
 }

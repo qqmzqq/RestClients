@@ -1,97 +1,97 @@
 {
   "AccessToken": {
-    "url_suffix": "/cxrestapi/auth/identity/connect/token",
-    "http_method": "POST",
+    "urlSuffix": "/cxrestapi/auth/identity/connect/token",
+    "method": "POST",
     "version": "2.0"
   },
   "Login": {
-    "url_suffix": "/cxrestapi/auth/login",
-    "http_method": "POST",
+    "urlSuffix": "/cxrestapi/auth/login",
+    "method": "POST",
     "version": "2.0"
   },
   "GetAllProjectDetails": {
-    "url_suffix": "/cxrestapi/projects",
-    "http_method": "GET",
+    "urlSuffix": "/cxrestapi/projects",
+    "method": "GET",
+    "version": "2.0"
+  },
+  "CreateProjectWithDefaultConfiguration": {
+    "urlSuffix": "/cxrestapi/projects",
+    "method": "POST",
+    "version": "2.0"
+  },
+  "GetProjectDetailsById": {
+    "urlSuffix": "/cxrestapi/projects/{id}",
+    "method": "GET",
     "version": "2.0"
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   },
   "": {
-    "url_suffix": "",
-    "http_method": "",
-    "version": ""
-  },
-  "": {
-    "url_suffix": "",
-    "http_method": "",
-    "version": ""
-  },
-  "": {
-    "url_suffix": "",
-    "http_method": "",
+    "urlSuffix": "",
+    "method": "",
     "version": ""
   }
 }
