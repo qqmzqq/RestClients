@@ -30,7 +30,7 @@ dotnet run
 * Use IDE
   1. Open "RestClients.sln" in your IDE
   2. Click "Run" button
-3. The Web Application will start and you can launche a browser, and navigates to ``https://localhost:5001``
+3. The Web Application will start. You can launche a browser, and navigates to ``https://localhost:5001``
 
 ### TODO
 * CxIAST Rest Client
