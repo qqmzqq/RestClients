@@ -1,18 +1,15 @@
 {
   "token": {
     "url_suffix": "/auth/identity/connect/token",
-    "http_method": "POST",
-    "version": "2.0"
+    "http_method": "POST"
   },
   "login": {
     "url_suffix": "/cxrestapi/auth/login",
-    "http_method": "POST",
-    "version": "2.0"
+    "http_method": "POST"
   },
   "get_all_teams": {
     "url_suffix": "/auth/teams",
     "http_method": "GET",
-    "version": "1.0"
   },
   "get_project_details_by_id": {
     "url_suffix": "/projects/{project_id}",
